@@ -1,6 +1,6 @@
 ---
 - name: Health Check and Remediation
-  hosts: all
+  hosts: localhost
   gather_facts: yes
   tasks:
     - name: Check CPU usage
