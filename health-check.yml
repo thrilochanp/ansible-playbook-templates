@@ -1,0 +1,47 @@
+---
+- name: Health Check and Remediation
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Check CPU usage
+      shell: "top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\\([0-9.]*\\)%* id.*/\\1/' | awk '{print 100 - $1}'"
+      register: cpu_usage
+
+    - name: Fail if CPU usage is too high
+      fail:
+        msg: "CPU usage is above 80%: {{ cpu_usage.stdout }}%"
+      when: cpu_usage.stdout | float > 80
+
+    - name: Check memory usage
+      shell: free -m | awk 'NR==2{printf "%.2f", $3*100/$2 }'
+      register: memory_usage
+
+    - name: Fail if memory usage is too high
+      fail:
+        msg: "Memory usage is above 80%: {{ memory_usage.stdout }}%"
+      when: memory_usage.stdout | float > 80
+
+    - name: Check disk usage
+      shell: df -h | grep '/dev/sda1' | awk '{print $5}' | sed 's/%//g'
+      register: disk_usage
+
+    - name: Fail if disk usage is too high
+      fail:
+        msg: "Disk usage is above 80%: {{ disk_usage.stdout }}%"
+      when: disk_usage.stdout | int > 80
+
+    - name: Restart Apache if CPU usage is high
+      service:
+        name: apache2
+        state: restarted
+      when: cpu_usage.stdout | float > 80
+
+    - name: Restart MySQL if memory usage is high
+      service:
+        name: mysql
+        state: restarted
+      when: memory_usage.stdout | float > 80
+
+    - name: Cleanup /var/log if disk usage is high
+      shell: rm -rf /var/log/*
+      when: disk_usage.stdout | int > 80
