@@ -2,9 +2,10 @@
 - name: Create user on target system
   hosts: localhost
   become: yes
+  become_method: su
   vars:
     username: newbie
-    password: changeit
+    password: changeit123
 
   tasks:
     - name: Ensure the user exists
@@ -12,3 +13,4 @@
         name: "{{ username }}"
         password: "{{ password | password_hash('sha512') }}"  # Replace with appropriate hashing method
         state: present
+
