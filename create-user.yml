@@ -1,0 +1,14 @@
+---
+- name: Create user on target system
+  hosts: localhost
+  become: yes
+  vars:
+    username: newbie
+    password: changeit
+
+  tasks:
+    - name: Ensure the user exists
+      user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"  # Replace with appropriate hashing method
+        state: present
