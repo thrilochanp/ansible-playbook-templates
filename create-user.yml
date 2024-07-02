@@ -3,6 +3,7 @@
   hosts: localhost
   become: true
   become_method: su
+  become_user: nobody
   tasks:
     - name: newbie exists with UID 4000
       user:
