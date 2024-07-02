@@ -2,8 +2,8 @@
 - name: Configure important user consistently
   hosts: localhost
   become: true
-  become_method: su
-  become_user: nobody
+  become_method: sudo
+  become_user: root
   tasks:
     - name: newbie exists with UID 4000
       user:
